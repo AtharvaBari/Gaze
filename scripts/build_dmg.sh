@@ -5,14 +5,16 @@
 
 set -e
 
+# Configuration
 APP_NAME="Gaze"
 PROJECT_NAME="Gaze.xcodeproj"
 SCHEME_NAME="Gaze"
 CONFIGURATION="Release"
 BUILD_DIR="./build"
 APP_DIR="$BUILD_DIR/Build/Products/$CONFIGURATION/$APP_NAME.app"
-DMG_NAME="$APP_NAME.dmg"
-DMG_TEMP="temp_$DMG_NAME"
+
+# Extract version from the built app AFTER it is built
+# We will set DMG_NAME inside the script logic after the build step.
 
 echo "🚀 Starting build process for $APP_NAME..."
 
@@ -28,7 +30,12 @@ if [ ! -d "$APP_DIR" ]; then
     exit 1
 fi
 
-echo "📦 Creating DMG..."
+# Extract version for the filename
+VERSION=$(defaults read "$(pwd)/$APP_DIR/Contents/Info.plist" CFBundleShortVersionString)
+DMG_NAME="${APP_NAME}-${VERSION}.dmg"
+DMG_TEMP="temp_${DMG_NAME}"
+
+echo "📦 Creating DMG: $DMG_NAME"
 
 # 2. Create Temporary DMG
 if [ -f "$DMG_NAME" ]; then rm "$DMG_NAME"; fi

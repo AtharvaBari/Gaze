@@ -44,12 +44,15 @@ generate_new_keys() {
 }
 
 release_update() {
-    if [ ! -f "$DMG_PATH" ]; then
-        echo "❌ Error: $DMG_PATH not found. Run ./scripts/build_dmg.sh first."
+    # Find the latest versioned DMG
+    VERSIONED_DMG=$(ls Gaze-*.dmg 2>/dev/null | sort -V | tail -n 1)
+
+    if [ -z "$VERSIONED_DMG" ]; then
+        echo "❌ Error: No versioned Gaze-*.dmg found. Run ./scripts/build_dmg.sh first."
         exit 1
     fi
 
-    echo -e "${BLUE}📦 Processing update for $DMG_PATH...${NC}"
+    echo -e "${BLUE}📦 Processing update for $VERSIONED_DMG...${NC}"
     
     # Run the Sparkle generate_appcast tool
     # This automatically signs the DMG and updates appcast.xml
@@ -57,7 +60,7 @@ release_update() {
 
     echo -e "${GREEN}✅ appcast.xml updated!${NC}"
     echo "Next steps:"
-    echo "1. Upload your Gaze.dmg to GitHub Releases."
+    echo "1. Upload $VERSIONED_DMG to GitHub Releases."
     echo "2. Commit and push appcast.xml to GitHub."
 }
 
