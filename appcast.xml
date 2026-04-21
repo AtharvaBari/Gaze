@@ -12,7 +12,7 @@
             <sparkle:shortVersionString>1.0.1</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
             <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
-            <enclosure url="https://AtharvaBari.github.io/Gaze/Gaze.dmg" length="1417505" type="application/octet-stream"/>
+            <enclosure url="https://AtharvaBari.github.io/Gaze/Gaze.dmg" length="1417505" type="application/octet-stream" sparkle:edSignature="axqgsOZUg9dnPbDtB260PrZPMbUCPFPT549q+1gJXfUW707WVYZ7xveRDJMh2tSfi5LOCtX+rNvYon91naRABw=="/>
         </item>
         <item>
             <title>Version 1.0</title>
