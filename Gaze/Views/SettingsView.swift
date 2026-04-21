@@ -38,7 +38,7 @@ struct SettingsView: View {
                     
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Gaze").font(.headline)
-                        Text("v1.0").font(.caption).foregroundColor(.secondary)
+                        Text("v1.0.1").font(.caption).foregroundColor(.secondary)
                     }
                     Spacer()
                 }
