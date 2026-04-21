@@ -52,16 +52,20 @@ release_update() {
         exit 1
     fi
 
-    echo -e "${BLUE}📦 Processing update for $VERSIONED_DMG...${NC}"
+    # Extract version from the filename (e.g., Gaze-1.0.1.dmg -> 1.0.1)
+    VERSION=$(echo "$VERSIONED_DMG" | sed 's/Gaze-//' | sed 's/.dmg//')
+
+    echo -e "${BLUE}📦 Processing update for $VERSIONED_DMG (v$VERSION)...${NC}"
     
     # Run the Sparkle generate_appcast tool
-    # This automatically signs the DMG and updates appcast.xml
-    $GENERATE_APPCAST . --download-url-prefix "https://AtharvaBari.github.io/Gaze/"
+    # Points to GitHub Releases download path
+    $GENERATE_APPCAST . --download-url-prefix "https://github.com/AtharvaBari/Gaze/releases/download/v${VERSION}/"
 
-    echo -e "${GREEN}✅ appcast.xml updated!${NC}"
+    echo -e "${GREEN}✅ appcast.xml updated with GitHub Releases URL!${NC}"
     echo "Next steps:"
-    echo "1. Upload $VERSIONED_DMG to GitHub Releases."
-    echo "2. Commit and push appcast.xml to GitHub."
+    echo "1. Create a GitHub Release called 'v$VERSION'."
+    echo "2. Upload $VERSIONED_DMG to that Release."
+    echo "3. Commit and push appcast.xml to GitHub."
 }
 
 case "$1" in

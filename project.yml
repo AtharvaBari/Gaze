@@ -20,8 +20,8 @@ targets:
         CFBundleName: Gaze
         CFBundleDisplayName: Gaze
         CFBundleIdentifier: com.gaze.Gaze
-        CFBundleVersion: "2"
-        CFBundleShortVersionString: "1.0.1"
+        CFBundleVersion: "1"
+        CFBundleShortVersionString: "1.0.0"
         CFBundleExecutable: $(EXECUTABLE_NAME)
         CFBundlePackageType: $(PRODUCT_BUNDLE_PACKAGE_TYPE)
     dependencies:
