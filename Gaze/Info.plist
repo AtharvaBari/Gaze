@@ -23,7 +23,7 @@
 	<key>LSUIElement</key>
 	<true/>
 	<key>SUFeedURL</key>
-	<string>https://AtharvaBari.github.io/Gaze/appcast.xml</string>
+	<string>https://AtharvaBari.github.io/Gaze-MacOS/appcast.xml</string>
 	<key>SUEnableAutomaticChecks</key>
 	<true/>
 	<key>SUPublicEDKey</key>

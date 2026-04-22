@@ -11,8 +11,8 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Platform-macOS%2014.0+-black?style=for-the-badge&logo=apple" alt="macOS">
   <img src="https://img.shields.io/badge/Swift-6.0-orange?style=for-the-badge&logo=swift" alt="Swift">
-  <img src="https://img.shields.io/github/v/release/AtharvaBari/Gaze?style=for-the-badge&color=blue" alt="Release">
-  <img src="https://img.shields.io/github/license/AtharvaBari/Gaze?style=for-the-badge&color=lightgrey" alt="License">
+  <img src="https://img.shields.io/github/v/release/AtharvaBari/Gaze-MacOS?style=for-the-badge&color=blue" alt="Release">
+  <img src="https://img.shields.io/github/license/AtharvaBari/Gaze-MacOS?style=for-the-badge&color=lightgrey" alt="License">
 </p>
 
 <p align="center">
@@ -38,7 +38,7 @@ Featuring a procedural **Mascot** that tracks your cursor with its eyes, Gaze ad
 ## 🚀 Getting Started
 
 ### Installation
-1. Download the latest **`Gaze.dmg`** from the [Releases](https://github.com/AtharvaBari/Gaze/releases) page.
+1. Download the latest **`Gaze.dmg`** from the [Releases](https://github.com/AtharvaBari/Gaze-MacOS/releases) page.
 2. Drag **Gaze** to your Applications folder.
 3. Open the app and grant **Accessibility Permissions** (required for the mascot to track your cursor).
 
@@ -47,7 +47,7 @@ Gaze is built using modern Swift standards and `xcodegen`.
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/AtharvaBari/Gaze.git
+git clone https://github.com/AtharvaBari/Gaze-MacOS.git
 cd Gaze
 
 # 2. Generate the Xcode Project

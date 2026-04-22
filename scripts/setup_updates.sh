@@ -59,7 +59,7 @@ release_update() {
     
     # Run the Sparkle generate_appcast tool
     # Points to GitHub Releases download path
-    $GENERATE_APPCAST . --download-url-prefix "https://github.com/AtharvaBari/Gaze/releases/download/v${VERSION}/"
+    $GENERATE_APPCAST . --download-url-prefix "https://github.com/AtharvaBari/Gaze-MacOS/releases/download/v${VERSION}/"
 
     echo -e "${GREEN}✅ appcast.xml updated with GitHub Releases URL!${NC}"
     echo "Next steps:"
