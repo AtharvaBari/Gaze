@@ -7,7 +7,7 @@ class SparkleManager {
     private init() {
         updater = SUUpdater()
         // Point to the GitHub Pages URL for the appcast
-        updater.feedURL = URL(string: "https://AtharvaBari.github.io/Gaze/appcast.xml")
+        updater.feedURL = URL(string: "https://AtharvaBari.github.io/Gaze-MacOS/appcast.xml")
         updater.automaticallyChecksForUpdates = true
     }
 }

@@ -57,4 +57,4 @@ To prevent users from seeing the "Developer cannot be verified" warning:
 ## 4. Hosting on GitHub
 
 1. **GitHub Releases**: Create a new release (e.g., `v1.0`) and upload `Gaze.dmg`.
-2. **GitHub Pages**: Ensure `appcast.xml` is accessible at `https://AtharvaBari.github.io/Gaze/appcast.xml`.
+2. **GitHub Pages**: Ensure `appcast.xml` is accessible at `https://AtharvaBari.github.io/Gaze-MacOS/appcast.xml`.

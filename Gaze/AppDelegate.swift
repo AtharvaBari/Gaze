@@ -104,7 +104,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             // Configure Sparkle updater if available
             let updater = SparkleManager.shared.updater
             updater.automaticallyChecksForUpdates = settingsStore.autoCheckUpdates
-            if let feedURL = URL(string: "https://AtharvaBari.github.io/Gaze/appcast.xml") {
+            if let feedURL = URL(string: "https://AtharvaBari.github.io/Gaze-MacOS/appcast.xml") {
                 updater.feedURL = feedURL
             }
             // Build a context menu with Check for Updates and Settings
