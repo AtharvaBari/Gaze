@@ -6,6 +6,15 @@
         <description>Updates for the Gaze macOS app</description>
         <language>en</language>
         <item>
+            <title>1.2.2 - Stable Release</title>
+            <pubDate>Wed, 13 May 2026 20:13:00 +0530</pubDate>
+            <sparkle:version>6</sparkle:version>
+            <sparkle:shortVersionString>1.2.2</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <enclosure url="https://github.com/AtharvaBari/Gaze-MacOS/releases/download/v1.2.2/Gaze_v1.2.2.dmg" length="0" type="application/octet-stream" sparkle:edSignature="bBy3kZvEsitfaKqVKRMC+rYNwSZCq0fKuEneY1zEt83gyW+z10Gdb3i+2JXCEAQAvWAR3FlR1uFrUS3RvZCuCQ=="/>
+        </item>
+        <item>
             <title>1.2.1 - Stable Release</title>
             <pubDate>Wed, 13 May 2026 20:01:00 +0530</pubDate>
             <sparkle:version>5</sparkle:version>
