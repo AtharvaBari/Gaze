@@ -20,8 +20,8 @@ targets:
         CFBundleName: Gaze
         CFBundleDisplayName: Gaze
         CFBundleIdentifier: com.gaze.Gaze
-        CFBundleVersion: "4"
-        CFBundleShortVersionString: "1.2.0"
+        CFBundleVersion: "5"
+        CFBundleShortVersionString: "1.2.1"
         CFBundleExecutable: $(EXECUTABLE_NAME)
         CFBundlePackageType: $(PRODUCT_BUNDLE_PACKAGE_TYPE)
         SUFeedURL: "https://AtharvaBari.github.io/Gaze-MacOS/appcast.xml"
