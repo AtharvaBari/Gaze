@@ -7,12 +7,12 @@
         <language>en</language>
         <item>
             <title>1.2.1 - Stable Release</title>
-            <pubDate>Wed, 13 May 2026 19:43:00 +0530</pubDate>
+            <pubDate>Wed, 13 May 2026 20:01:00 +0530</pubDate>
             <sparkle:version>5</sparkle:version>
             <sparkle:shortVersionString>1.2.1</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
             <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
-            <enclosure url="https://github.com/AtharvaBari/Gaze-MacOS/releases/download/v1.2.1/Gaze_v1.2.1.dmg" length="0" type="application/octet-stream" sparkle:edSignature="REPLACE_WITH_SIGNATURE"/>
+            <enclosure url="https://github.com/AtharvaBari/Gaze-MacOS/releases/download/v1.2.1/Gaze_v1.2.1.dmg" length="10012153" type="application/octet-stream" sparkle:edSignature="pDNLQyxmQqy04kIPJuluvg7Vbr1+uQU96muM8wtSRtbU6s4qKgHK2aukGwMeu5H2XdVN1xJAgNlQkslk83LBBw=="/>
         </item>
         <item>
             <title>1.0.1</title>
@@ -30,7 +30,6 @@
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
             <pubDate>Thu, 21 Apr 2026 05:00:00 +0000</pubDate>
             <enclosure url="https://github.com/AtharvaBari/Gaze-MacOS/releases/download/v1.0/Gaze_v1.0.dmg" length="1417598" type="application/octet-stream"/>
-            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
         </item>
     </channel>
 </rss>

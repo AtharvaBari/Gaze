@@ -26,7 +26,7 @@ targets:
         CFBundlePackageType: $(PRODUCT_BUNDLE_PACKAGE_TYPE)
         SUFeedURL: "https://AtharvaBari.github.io/Gaze-MacOS/appcast.xml"
         SUEnableAutomaticChecks: true
-        SUPublicEDKey: "rIBVwBzLoQwef7fvTQZEsWXSvFDUK46zI6qji9GG95g="
+        SUPublicEDKey: "2onCP4llK7RFb4/SmnR0kIYsHbt316PhHK8TAAAVw08="
         NSMicrophoneUsageDescription: "Gaze listens to your microphone only while you hold the Fn + ⌘ push-to-talk hotkey."
         NSSpeechRecognitionUsageDescription: "Gaze uses on-device speech recognition to transcribe what you say while Fn + ⌘ is held."
     dependencies:
