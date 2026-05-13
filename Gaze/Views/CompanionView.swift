@@ -31,6 +31,12 @@ struct CompanionView: View {
     @StateObject private var controller = EyeController()
     @ObservedObject var timerEngine: TimerEngine
     @ObservedObject var settings: SettingsStore
+    @ObservedObject var portal: PortalCoordinator
+    @ObservedObject var systemObserver: SystemObserver
+    @ObservedObject var screenAwareness: ScreenAwarenessService
+    @ObservedObject var taskHelper: TaskHelperService
+    @ObservedObject var voice: VoiceService
+    @ObservedObject var voiceCoordinator: VoiceConversationCoordinator
     
     var body: some View {
         ZStack {
@@ -39,22 +45,40 @@ struct CompanionView: View {
                 ZAnimationView()
                     .offset(x: 10, y: -10)
             }
+
+            PrivacyIndicator(isActive: screenAwareness.isCapturing)
+                .offset(x: -16, y: -8)
+
             HStack(spacing: 8) {
                 ZStack {
-                    EyeView(blinkScale: controller.leftBlinkScale, lookOffset: controller.lookOffset, isSleeping: controller.state == .sleeping && controller.leftBlinkScale < 0.5, emotion: controller.currentEmotion)
-                    
+                    MascotFactory.makeEye(
+                        style: settings.mascotStyle,
+                        blinkScale: controller.leftBlinkScale,
+                        lookOffset: controller.lookOffset,
+                        isSleeping: controller.state == .sleeping && controller.leftBlinkScale < 0.5,
+                        emotion: controller.currentEmotion,
+                        mirrored: false
+                    )
+
                     if controller.state == .sleeping && controller.showsMagnifyingGlass && controller.isLeftEyePeeking {
                         Image(systemName: "magnifyingglass")
                             .font(.system(size: 24, weight: .heavy))
-                            .foregroundColor(Color(white: 0.12)) // Dark contrast
+                            .foregroundColor(Color(white: 0.12))
                             .shadow(color: .white.opacity(0.8), radius: 2)
                             .offset(x: controller.lookOffset.width - 4, y: controller.lookOffset.height - 4)
                             .rotationEffect(.degrees(15))
                     }
                 }
                 ZStack {
-                    EyeView(blinkScale: controller.rightBlinkScale, lookOffset: controller.lookOffset, isSleeping: controller.state == .sleeping && controller.rightBlinkScale < 0.5, emotion: controller.currentEmotion)
-                    
+                    MascotFactory.makeEye(
+                        style: settings.mascotStyle,
+                        blinkScale: controller.rightBlinkScale,
+                        lookOffset: controller.lookOffset,
+                        isSleeping: controller.state == .sleeping && controller.rightBlinkScale < 0.5,
+                        emotion: controller.currentEmotion,
+                        mirrored: true
+                    )
+
                     if controller.state == .sleeping && controller.showsMagnifyingGlass && !controller.isLeftEyePeeking {
                         Image(systemName: "magnifyingglass")
                             .font(.system(size: 24, weight: .heavy))
@@ -81,8 +105,39 @@ struct CompanionView: View {
         .onChange(of: settings.trackCursor) { tracking in
             controller.isCursorTrackingEnabled = tracking
         }
+        .onChange(of: portal.isHovering) { hovering in
+            controller.setEmotion(hovering ? .surprised : .normal)
+        }
+        .onChange(of: portal.swallowPulse) { _ in
+            controller.setEmotion(.lightning)
+        }
+        .onChange(of: taskHelper.currentHint) { newHint in
+            if newHint != nil {
+                controller.setEmotion(.surprised)
+            }
+        }
+        .onChange(of: systemObserver.hud) { hud in
+            if let hud = hud {
+                let baseRight: CGFloat = 2.5
+                let valueShift = CGFloat(hud.value) * 1.5
+                controller.setGazeTarget(CGSize(width: baseRight + valueShift, height: 0))
+            } else {
+                controller.setGazeTarget(nil)
+            }
+        }
+        .onChange(of: voice.isRecording) { listening in
+            controller.isListening = listening
+        }
+        .onChange(of: voiceCoordinator.isSpeaking) { speaking in
+            controller.isSpeaking = speaking
+        }
+        .onChange(of: voiceCoordinator.speechBeat) { _ in
+            controller.pulse()
+        }
         .onAppear {
             controller.isCursorTrackingEnabled = settings.trackCursor
+            controller.isListening = voice.isRecording
+            controller.isSpeaking = voiceCoordinator.isSpeaking
             if timerEngine.mode == .idle {
                 controller.state = .sleeping
             }

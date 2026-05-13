@@ -240,25 +240,6 @@ struct MenuBarAnimationView: View {
     }
 }
 
-/// A macOS specific visual effect view to get true behind-window glassmorphism.
-struct VisualEffectView: NSViewRepresentable {
-    var material: NSVisualEffectView.Material
-    var blendingMode: NSVisualEffectView.BlendingMode
-    
-    func makeNSView(context: Context) -> NSVisualEffectView {
-        let view = NSVisualEffectView()
-        view.material = material
-        view.blendingMode = blendingMode
-        view.state = .active
-        return view
-    }
-    
-    func updateNSView(_ nsView: NSVisualEffectView, context: Context) {
-        nsView.material = material
-        nsView.blendingMode = blendingMode
-    }
-}
-
 struct WelcomeView_Previews: PreviewProvider {
     static var previews: some View {
         WelcomeView(onDismiss: {})

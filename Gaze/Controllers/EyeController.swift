@@ -19,6 +19,22 @@ class EyeController: ObservableObject {
             }
         }
     }
+
+    @Published var isListening: Bool = false {
+        didSet {
+            if isListening != oldValue {
+                restartTimers()
+            }
+        }
+    }
+
+    @Published var isSpeaking: Bool = false {
+        didSet {
+            if isSpeaking != oldValue {
+                restartTimers()
+            }
+        }
+    }
     
     @Published var lookOffset: CGSize = .zero
     @Published var leftBlinkScale: CGFloat = 1.0
@@ -26,6 +42,7 @@ class EyeController: ObservableObject {
     @Published var showsMagnifyingGlass: Bool = false
     @Published var isLeftEyePeeking: Bool = false
     @Published var currentEmotion: EyeEmotion = .normal
+    @Published private(set) var gazeTarget: CGSize?
     
     // Limits
     private let maxLookDistance: CGFloat = 4.0
@@ -34,6 +51,7 @@ class EyeController: ObservableObject {
     private var lookCancellable: AnyCancellable?
     private var trackingCancellable: AnyCancellable?
     private var sleepPeekCancellable: AnyCancellable?
+    private var listenShakeCancellable: AnyCancellable?
     
     private var cancellables = Set<AnyCancellable>()
     private var powerObserver = PowerObserver()
@@ -95,6 +113,7 @@ class EyeController: ObservableObject {
         lookCancellable?.cancel()
         trackingCancellable?.cancel()
         sleepPeekCancellable?.cancel()
+        listenShakeCancellable?.cancel()
     }
     
     private func startTimers() {
@@ -102,12 +121,76 @@ class EyeController: ObservableObject {
             scheduleSleepPeek()
             return
         }
-        
+
         scheduleNextBlink()
+
+        if isListening {
+            startListenShake()
+            return
+        }
+
+        if isSpeaking {
+            withAnimation(.spring(response: 0.2, dampingFraction: 0.8)) {
+                lookOffset = .zero
+            }
+            return
+        }
+
+        if gazeTarget != nil {
+            return
+        }
+
         if isCursorTrackingEnabled {
             startTrackingCursor()
         } else {
             scheduleNextLook()
+        }
+    }
+
+    private func startListenShake() {
+        listenShakeCancellable = Timer.publish(every: 0.05, on: .main, in: .common)
+            .autoconnect()
+            .sink { [weak self] _ in
+                guard let self else { return }
+                let dx = CGFloat.random(in: -1.8...1.8)
+                let dy = CGFloat.random(in: -1.2...1.2)
+                withAnimation(.linear(duration: 0.05)) {
+                    self.lookOffset = CGSize(width: dx, height: dy)
+                }
+            }
+    }
+
+    func pulse() {
+        guard state != .sleeping else { return }
+        withAnimation(.interactiveSpring(response: 0.1, dampingFraction: 0.6)) {
+            leftBlinkScale = 0.3
+            rightBlinkScale = 0.3
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.09) { [weak self] in
+            guard let self else { return }
+            withAnimation(.interactiveSpring(response: 0.18, dampingFraction: 0.75)) {
+                self.leftBlinkScale = 1.0
+                self.rightBlinkScale = 1.0
+            }
+        }
+    }
+
+    func setGazeTarget(_ target: CGSize?) {
+        guard target != gazeTarget else { return }
+        let wasPinned = gazeTarget != nil
+        gazeTarget = target
+
+        if let target = target {
+            lookCancellable?.cancel()
+            trackingCancellable?.cancel()
+            if !wasPinned {
+                scheduleNextBlink()
+            }
+            withAnimation(.spring(response: 0.28, dampingFraction: 0.7)) {
+                lookOffset = target
+            }
+        } else {
+            restartTimers()
         }
     }
     
@@ -279,6 +362,10 @@ class EyeController: ObservableObject {
         scheduleNextLook()
     }
     
+    func setEmotion(_ emotion: EyeEmotion) {
+        setTempEmotion(emotion)
+    }
+
     private func setTempEmotion(_ emotion: EyeEmotion) {
         self.currentEmotion = emotion
         

@@ -5,27 +5,31 @@ enum EyeEmotion: String, Equatable, CaseIterable {
     case fire
     case lightning
     case code
-    
+
     case coffee
     case burger
     case music
-    
-    case charging // System State
-    case lowBattery // System State
-    
+
+    case charging
+    case lowBattery
+
+    case surprised
+
     var emoji: String? {
         switch self {
         case .normal: return nil
         case .fire: return "🔥"
         case .lightning: return "⚡️"
         case .code: return "💻"
-            
+
         case .coffee: return "☕️"
         case .burger: return "🍔"
         case .music: return "🎵"
-            
+
         case .charging: return "⚡️"
         case .lowBattery: return "🪫"
+
+        case .surprised: return "😲"
         }
     }
     
