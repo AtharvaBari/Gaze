@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xcodegen --version)",
+      "Bash(xcodebuild -project Gaze.xcodeproj -scheme Gaze -configuration Debug -destination 'platform=macOS' build)",
+      "Bash(unzip -o -q xcodegen.zip -d .xcodegen_tmp)",
+      "Bash(.xcodegen_tmp/xcodegen/bin/xcodegen generate *)"
+    ]
+  }
+}

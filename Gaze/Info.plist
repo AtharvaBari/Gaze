@@ -22,10 +22,14 @@
 	<string>2</string>
 	<key>LSUIElement</key>
 	<true/>
-	<key>SUFeedURL</key>
-	<string>https://AtharvaBari.github.io/Gaze-MacOS/appcast.xml</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Gaze listens to your microphone only while you hold the Fn + ⌘ push-to-talk hotkey.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Gaze uses on-device speech recognition to transcribe what you say while Fn + ⌘ is held.</string>
 	<key>SUEnableAutomaticChecks</key>
 	<true/>
+	<key>SUFeedURL</key>
+	<string>https://AtharvaBari.github.io/Gaze-MacOS/appcast.xml</string>
 	<key>SUPublicEDKey</key>
 	<string>rIBVwBzLoQwef7fvTQZEsWXSvFDUK46zI6qji9GG95g=</string>
 </dict>

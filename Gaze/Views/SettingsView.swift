@@ -8,14 +8,16 @@ enum SettingsTab: String, CaseIterable, Identifiable {
     case general = "General"
     case timer = "Timer"
     case interaction = "Interaction"
-    
+    case ai = "AI & Audio"
+
     var id: String { self.rawValue }
-    
+
     var icon: String {
         switch self {
         case .general: return "gearshape"
         case .timer: return "timer"
         case .interaction: return "eye"
+        case .ai: return "sparkles"
         }
     }
 }
@@ -65,6 +67,8 @@ struct SettingsView: View {
                         TimerSettings(store: store)
                     case .interaction:
                         InteractionSettings(store: store)
+                    case .ai:
+                        AIAudioSettings(store: store)
                     }
                 }
                 .padding(24)
@@ -160,6 +164,19 @@ struct InteractionSettings: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
+            SettingSection(title: "Mascot Style") {
+                Picker("Style", selection: Binding(
+                    get: { store.mascotStyle },
+                    set: { store.mascotStyle = $0 }
+                )) {
+                    ForEach(MascotStyle.allCases) { style in
+                        Text(style.displayName).tag(style)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+            }
+
             SettingSection(title: "Behavior") {
                 Toggle(isOn: $store.trackCursor) {
                     VStack(alignment: .leading) {
@@ -168,7 +185,7 @@ struct InteractionSettings: View {
                     }
                 }
             }
-            
+
             SettingSection(title: "Periodic Peek") {
                 Toggle(isOn: $store.isPeriodicPeekEnabled) {
                     VStack(alignment: .leading) {
@@ -179,6 +196,84 @@ struct InteractionSettings: View {
                 
                 if store.isPeriodicPeekEnabled {
                     CustomStepper(value: $store.peekIntervalMinutes, range: 1...60, label: "Peek Every", unit: "min")
+                }
+            }
+        }
+    }
+}
+
+struct AIAudioSettings: View {
+    @ObservedObject var store: SettingsStore
+
+    private var providerBinding: Binding<AIProvider> {
+        Binding(
+            get: { store.aiProviderEnum },
+            set: { store.aiProviderEnum = $0 }
+        )
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            SettingSection(title: "AI Provider") {
+                Picker("Provider", selection: providerBinding) {
+                    ForEach(AIProvider.allCases) { provider in
+                        Text(provider.displayName).tag(provider)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+
+                Text("Both providers receive the same prompts; only one is used at a time.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+
+            if store.aiProviderEnum == .gemini {
+                SettingSection(title: "Gemini API Key") {
+                    VStack(alignment: .leading, spacing: 10) {
+                        SecureField("Paste your Gemini API key", text: $store.geminiAPIKey)
+                            .textFieldStyle(.roundedBorder)
+                        Text("Screenshots are sent to Google's Gemini API only while a Pomodoro work session is running.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Link("Get a key at aistudio.google.com",
+                             destination: URL(string: "https://aistudio.google.com/app/apikey")!)
+                            .font(.caption)
+                    }
+                }
+            } else {
+                SettingSection(title: "OpenRouter API Key") {
+                    VStack(alignment: .leading, spacing: 10) {
+                        SecureField("Paste your OpenRouter API key", text: $store.openRouterAPIKey)
+                            .textFieldStyle(.roundedBorder)
+                        Text("OpenRouter proxies multiple model providers behind a single key. Vision support depends on the model slug used.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Link("Get a key at openrouter.ai/keys",
+                             destination: URL(string: "https://openrouter.ai/keys")!)
+                            .font(.caption)
+                    }
+                }
+            }
+
+            SettingSection(title: "Ambient Soundscapes") {
+                Toggle(isOn: $store.enableAmbient) {
+                    VStack(alignment: .leading) {
+                        Text("Enable Ambient Sounds")
+                        Text("Plays a focus loop during work sessions and a calm loop on breaks.")
+                            .font(.caption).foregroundColor(.secondary)
+                    }
+                }
+
+                if store.enableAmbient {
+                    HStack(spacing: 12) {
+                        Text("Volume")
+                        Slider(value: $store.ambientVolume, in: 0...1)
+                        Text("\(Int(round(store.ambientVolume * 100)))%")
+                            .font(.caption.monospacedDigit())
+                            .foregroundColor(.secondary)
+                            .frame(width: 40, alignment: .trailing)
+                    }
                 }
             }
         }

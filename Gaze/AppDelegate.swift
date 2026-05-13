@@ -11,6 +11,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var notchDetector = NotchDetector()
     private var settingsStore = SettingsStore()
     private lazy var timerEngine = TimerEngine(settings: settingsStore)
+    private var portalCoordinator = PortalCoordinator()
+    private lazy var systemObserver = SystemObserver()
+    private var screenAwareness = ScreenAwarenessService()
+    private lazy var taskHelper = TaskHelperService(settings: settingsStore)
+    private lazy var ambientSound = AmbientSoundService(settings: settingsStore)
+    private var voiceService = VoiceService()
+    private var hotkeyManager = HotkeyManager()
+    private var actionRunner = ActionRunner()
+    private lazy var voiceCoordinator = VoiceConversationCoordinator(
+        voice: voiceService,
+        settings: settingsStore,
+        actionRunner: actionRunner
+    )
     private var cancellables = Set<AnyCancellable>()
     
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -33,11 +46,24 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         notchDetector.detect(for: NSScreen.main)
         
         if let geometry = notchDetector.geometry {
-            notchPanel = NotchPanel(contentRect: geometry.extensionRect)
-            let notchView = NotchContentView(geometry: geometry, timerEngine: timerEngine, settings: settingsStore)
+            notchPanel = NotchPanel(contentRect: geometry.extensionRect, notchAnchorX: geometry.notchRect.midX)
+            let notchView = NotchContentView(
+                geometry: geometry,
+                timerEngine: timerEngine,
+                settings: settingsStore,
+                portal: portalCoordinator,
+                systemObserver: systemObserver,
+                screenAwareness: screenAwareness,
+                taskHelper: taskHelper,
+                voice: voiceService,
+                voiceCoordinator: voiceCoordinator
+            )
             notchPanel?.setContent(notchView)
+            installPortalHandlers(for: geometry)
             notchPanel?.orderFrontRegardless()
         }
+
+        _ = systemObserver
         
         notchDetector.startMonitoring()
         
@@ -47,7 +73,31 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 self?.repositionPanel(geometry: newGeometry)
             }
             .store(in: &cancellables)
-            
+
+        systemObserver.$hud
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] hud in
+                self?.handleHUDChange(hud)
+            }
+            .store(in: &cancellables)
+
+        screenAwareness.delegate = self
+
+        timerEngine.$mode
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] mode in
+                self?.handleTimerModeChange(mode)
+            }
+            .store(in: &cancellables)
+
+        _ = ambientSound
+        _ = voiceCoordinator
+
+        installVoiceHotkey()
+        observeVoiceCoordinator()
+
         let launchManager = LaunchManager()
         if launchManager.isFirstLaunch {
             showWelcomeOverlay()
@@ -93,9 +143,130 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     private func repositionPanel(geometry: NotchGeometry) {
-        notchPanel?.setFrame(geometry.extensionRect, display: true, animate: true)
+        notchPanel?.updateBaseFrame(geometry.extensionRect, anchorX: geometry.notchRect.midX, animated: true)
     }
-    
+
+    func applicationWillTerminate(_ notification: Notification) {
+        taskHelper.cancelAll()
+        screenAwareness.setWorkMode(false)
+        ambientSound.cleanup()
+        hotkeyManager.stop()
+        voiceCoordinator.dismiss()
+        voiceService.cancel()
+        cancellables.removeAll()
+    }
+
+    private func installVoiceHotkey() {
+        hotkeyManager.onPushDown = { [weak self] in
+            self?.voiceService.startRecording()
+        }
+        hotkeyManager.onPushUp = { [weak self] in
+            self?.voiceService.stopRecording()
+        }
+        hotkeyManager.start()
+    }
+
+    private func observeVoiceCoordinator() {
+        let activePublisher = Publishers.CombineLatest4(
+            voiceCoordinator.$response,
+            voiceCoordinator.$isThinking,
+            voiceCoordinator.$isSpeaking,
+            voiceCoordinator.$transcript
+        )
+        .map { response, thinking, speaking, transcript in
+            return response != nil || thinking || speaking || !transcript.isEmpty
+        }
+        .removeDuplicates()
+
+        activePublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] active in
+                self?.handleVoiceActiveChange(active)
+            }
+            .store(in: &cancellables)
+    }
+
+    private func handleVoiceActiveChange(_ active: Bool) {
+        guard let panel = notchPanel else { return }
+        if active {
+            let target = panel.baseFrame.height + 64
+            panel.resizeHeight(to: target, animated: true)
+        } else {
+            panel.restoreHeight(animated: true)
+        }
+    }
+
+    private func handleTimerModeChange(_ mode: TimerMode) {
+        let isWork = (mode == .work)
+        screenAwareness.setWorkMode(isWork)
+        if !isWork {
+            taskHelper.clear()
+        }
+
+        switch mode {
+        case .work:
+            ambientSound.setMood(.focus)
+        case .break:
+            ambientSound.setMood(.relax)
+        case .idle, .countdown, .completed:
+            ambientSound.setMood(.off)
+        }
+    }
+
+    private func handleHUDChange(_ hud: SystemHUDState?) {
+        guard let panel = notchPanel else { return }
+        if hud != nil {
+            let target = max(panel.baseFrame.width, 380)
+            panel.resizeWidth(to: target, animated: true)
+        } else if !portalCoordinator.isHovering {
+            panel.restoreBaseFrame(animated: true)
+        }
+    }
+
+    private func installPortalHandlers(for geometry: NotchGeometry) {
+        let hoverWidth: CGFloat = max(geometry.extensionRect.width, 320)
+
+        notchPanel?.setPortalHandlers(
+            onEnter: { [weak self] in
+                guard let self else { return }
+                DispatchQueue.main.async {
+                    self.portalCoordinator.beginHover()
+                    self.notchPanel?.resizeWidth(to: hoverWidth, animated: true)
+                }
+            },
+            onExit: { [weak self] in
+                guard let self else { return }
+                DispatchQueue.main.async {
+                    self.portalCoordinator.endHover()
+                    self.notchPanel?.restoreBaseFrame(animated: true)
+                }
+            },
+            onDrop: { [weak self] raw in
+                guard let self else { return false }
+                guard let capture = PortalParser.parse(raw) else {
+                    DispatchQueue.main.async {
+                        self.portalCoordinator.endHover()
+                        self.notchPanel?.restoreBaseFrame(animated: true)
+                    }
+                    return false
+                }
+                let pasteboard = NSPasteboard.general
+                pasteboard.clearContents()
+                pasteboard.setString(capture.copyable, forType: .string)
+                DispatchQueue.main.async {
+                    self.portalCoordinator.swallow(capture)
+                    if case .url(let url) = capture {
+                        self.taskHelper.summarize(url: url)
+                    }
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) { [weak self] in
+                    self?.notchPanel?.restoreBaseFrame(animated: true)
+                }
+                return true
+            }
+        )
+    }
+
     @objc func statusBarButtonClicked(_ sender: NSStatusBarButton) {
         let event = NSApp.currentEvent!
         
@@ -164,4 +335,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         NSSound.beep()
     }
 #endif
+}
+
+extension AppDelegate: ScreenAwarenessDelegate {
+    func screenAwareness(_ service: ScreenAwarenessService, didCapture frame: ScreenAwarenessFrame) {
+        taskHelper.ingest(frame: frame)
+    }
 }
